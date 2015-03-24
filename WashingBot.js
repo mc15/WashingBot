@@ -81,6 +81,29 @@ function OnStart() {
                             }
 
                             break;
+                        case "natgeo":
+                            var httpRequest = new XMLHttpRequest();
+
+                            httpRequest.onload = function (response) {
+                                var responseText = httpRequest.responseText;
+                                responseText = responseText.slice(responseText.indexOf('<div class="primary_photo">') + '<div class="primary_photo">'.length);
+                                responseText = responseText.slice(0, responseText.indexOf('"  width="'));
+                                responseText = responseText.slice(responseText.indexOf('<img src="') + '<img src="'.length);
+                                sendRequest("http:" + responseText);
+                            };
+
+                            httpRequest.open("GET", "http://photography.nationalgeographic.com/photography/photo-of-the-day/", true);
+                            httpRequest.send(null);
+
+                            break;
+                        case "location":
+                            loc = app.CreateLocator("GPS,Network");
+
+                            loc.SetOnChange(loc_OnChange);
+                            //loc.SetRate( 10 ); //10 seconds.
+                            loc.Start();
+
+                            break;
                         default:
                             miniSlackBotInstance.sendMessage("You lost me there (I'm not trained to process that request).", channelId);
                             break;
