@@ -89,7 +89,7 @@ function OnStart() {
                                 responseText = responseText.slice(responseText.indexOf('<div class="primary_photo">') + '<div class="primary_photo">'.length);
                                 responseText = responseText.slice(0, responseText.indexOf('"  width="'));
                                 responseText = responseText.slice(responseText.indexOf('<img src="') + '<img src="'.length);
-                                sendRequest("http:" + responseText);
+                                miniSlackBotInstance.sendMessage("http:" + responseText, channelId);
                             };
 
                             httpRequest.open("GET", "http://photography.nationalgeographic.com/photography/photo-of-the-day/", true);
@@ -97,7 +97,12 @@ function OnStart() {
 
                             break;
                         case "location":
-                            loc = app.CreateLocator("GPS,Network");
+                            var loc = app.CreateLocator("GPS,Network");
+
+                            locationChangeFn = function (data){
+                                loc.Stop();
+                                miniSlackBotInstance.sendMessage("https://www.google.com/maps/search/" + data.latitude + "," + data.longitude, channelId);
+                            }
 
                             loc.SetOnChange(loc_OnChange);
                             //loc.SetRate( 10 ); //10 seconds.
@@ -203,3 +208,8 @@ function setupMonitor(){
 function say(speech) {
     app.TextToSpeech(speech, 1.0, 1.0);
 }
+
+var locationChangeFn = null;
+function loc_OnChange(data) {
+    locationChangeFn(data);
+};
